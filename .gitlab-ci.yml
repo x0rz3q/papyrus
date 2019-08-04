@@ -6,6 +6,11 @@ stages:
     - release
     - deploy
 
+test:cargo:check:
+    stage: test
+    script:
+        - cargo check
+
 test:fmt:
     stage: test
     script:
