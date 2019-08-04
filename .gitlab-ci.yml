@@ -1,0 +1,43 @@
+image: "rust:latest"
+
+stages:
+    - test
+    - build
+    - release
+    - deploy
+
+test:fmt:
+    stage: test
+    script:
+        - rustup component add rustfmt --toolchain 1.36.0-x86_64-unknown-linux-gnu
+        - rustfmt --check src/*.rs
+
+build:cargo:
+    stage: build
+    script:
+        - rustc --version && cargo --version
+        - cargo build
+
+release:cargo:
+    stage: release
+    script:
+        - cargo build --release
+    artifacts:
+        paths:
+            - target/release/papyrus
+    only:
+        - master
+
+deploy_prod:
+    stage: deploy
+    environment:
+        name: production
+    script:
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+        - cargo build --release
+        - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
+    when: manual
