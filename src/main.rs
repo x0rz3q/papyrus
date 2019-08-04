@@ -10,13 +10,14 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
+use std::process::exit;
 use threadpool::ThreadPool;
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
 }
 
-fn handle_connection(mut stream: TcpStream, directory: String) {
+fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 	let mut buffer = [0; 51200];
 
 	let size = match stream.read(&mut buffer) {
@@ -32,7 +33,7 @@ fn handle_connection(mut stream: TcpStream, directory: String) {
 	};
 
 	let slug = random_slug();
-	let path = Path::new(&directory).join(slug);
+	let path = Path::new(&directory).join(slug.clone());
 	let mut file = match File::create(path.clone()) {
 		Ok(file) => file,
 		Err(e) => {
@@ -45,6 +46,14 @@ fn handle_connection(mut stream: TcpStream, directory: String) {
 		Ok(_) => (),
 		Err(e) => {
 			error!("Cannot write to file {}: {}", path.display(), e);
+			return;
+		}
+	};
+
+	match stream.write(format!("{}/{}\n", domain, slug).as_bytes()) {
+		Ok(_) => (),
+		Err(e) => {
+			error!("Cannot write to stream: {}", e);
 		}
 	};
 }
@@ -84,6 +93,13 @@ fn main() {
 				.help("Thread count")
 				.takes_value(true),
 		)
+		.arg(
+			Arg::with_name("domain")
+				.short("-d")
+				.long("domain")
+				.help("Domain name to be used")
+				.takes_value(true),
+		)
 		.get_matches();
 
 	let port = matches.value_of("port").unwrap_or("9999");
@@ -93,11 +109,19 @@ fn main() {
 		.unwrap_or("/var/lib/papyrus/uploads")
 		.to_string();
 
+	let domain = match matches.value_of("domain") {
+		Some(domain) => domain.to_string(),
+		None => {
+			error!("Argument domain is required");
+			exit(1);
+		}
+	};
+
 	let threads = match matches.value_of("threads").unwrap_or("4").parse::<usize>() {
 		Ok(threads) => threads,
 		Err(_) => {
 			error!("Threads argument should be an integer");
-			1
+			exit(1);
 		}
 	};
 
@@ -120,8 +144,9 @@ fn main() {
 		debug!("Connected to {}", stream.peer_addr().unwrap());
 
 		let output = output.clone();
+		let domain = domain.clone();
 		pool.execute(move || {
-			handle_connection(stream, output);
+			handle_connection(stream, output, domain);
 		});
 	}
 }
