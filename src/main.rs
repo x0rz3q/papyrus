@@ -36,7 +36,7 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 	let path = Path::new(&directory).join(slug.clone());
 
 	debug!("Slug is {}", slug);
-	debug!("Upload path is {}", path);
+	debug!("Upload path is {}", path.display());
 
 	let mut file = match File::create(path.clone()) {
 		Ok(file) => file,
@@ -45,8 +45,6 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 			return;
 		}
 	};
-
-	debug!("File location is {}", file);
 
 	match file.write_all(&buffer[..size]) {
 		Ok(_) => (),
