@@ -77,6 +77,13 @@ fn main() {
 				.help("Output directory")
 				.takes_value(true),
 		)
+		.arg(
+			Arg::with_name("threads")
+				.short("-t")
+				.long("threads")
+				.help("Thread count")
+				.takes_value(true),
+		)
 		.get_matches();
 
 	let port = matches.value_of("port").unwrap_or("9999");
@@ -86,11 +93,18 @@ fn main() {
 		.unwrap_or("/var/lib/papyrus/uploads")
 		.to_string();
 
+	let threads = match matches.value_of("threads").unwrap_or("4").parse::<usize>() {
+		Ok(threads) => threads,
+		Err(_) => {
+			error!("Threads argument should be an integer");
+			1
+		}
+	};
+
 	info!("Opening socket {}:{}", host, port);
 	info!("Storing pastes in {}", output);
 
-	let pool = ThreadPool::new(4);
-
+	let pool = ThreadPool::new(threads);
 	let listener = TcpListener::bind(format!("{}:{}", host, port)).unwrap();
 	for stream in listener.incoming() {
 		debug!("Connection established");
