@@ -34,6 +34,10 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 
 	let slug = random_slug();
 	let path = Path::new(&directory).join(slug.clone());
+
+	debug!("Slug is {}", slug);
+	debug!("Upload path is {}", path);
+
 	let mut file = match File::create(path.clone()) {
 		Ok(file) => file,
 		Err(e) => {
@@ -42,6 +46,8 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 		}
 	};
 
+	debug!("File location is {}", file);
+
 	match file.write_all(&buffer[..size]) {
 		Ok(_) => (),
 		Err(e) => {
@@ -49,7 +55,6 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 			return;
 		}
 	};
-
 	match stream.write(format!("{}/{}\n", domain, slug).as_bytes()) {
 		Ok(_) => (),
 		Err(e) => {
@@ -108,7 +113,6 @@ fn main() {
 		.value_of("output")
 		.unwrap_or("/var/lib/papyrus/uploads")
 		.to_string();
-
 	let domain = match matches.value_of("domain") {
 		Some(domain) => domain.to_string(),
 		None => {
@@ -116,7 +120,6 @@ fn main() {
 			exit(1);
 		}
 	};
-
 	let threads = match matches.value_of("threads").unwrap_or("4").parse::<usize>() {
 		Ok(threads) => threads,
 		Err(_) => {
