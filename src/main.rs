@@ -93,7 +93,7 @@ fn main() {
 
 	let listener = TcpListener::bind(format!("{}:{}", host, port)).unwrap();
 	for stream in listener.incoming() {
-		info!("Connection established");
+		debug!("Connection established");
 
 		let stream = match stream {
 			Ok(stream) => stream,
@@ -103,7 +103,7 @@ fn main() {
 			}
 		};
 
-		info!("Connected to {}", stream.peer_addr().unwrap());
+		debug!("Connected to {}", stream.peer_addr().unwrap());
 
 		let output = output.clone();
 		pool.execute(move || {
