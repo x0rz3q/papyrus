@@ -10,7 +10,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
-use std::thread;
+use threadpool::ThreadPool;
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -89,6 +89,8 @@ fn main() {
 	info!("Opening socket {}:{}", host, port);
 	info!("Storing pastes in {}", output);
 
+	let pool = ThreadPool::new(4);
+
 	let listener = TcpListener::bind(format!("{}:{}", host, port)).unwrap();
 	for stream in listener.incoming() {
 		info!("Connection established");
@@ -104,7 +106,7 @@ fn main() {
 		info!("Connected to {}", stream.peer_addr().unwrap());
 
 		let output = output.clone();
-		thread::spawn(move || {
+		pool.execute(move || {
 			handle_connection(stream, output);
 		});
 	}
