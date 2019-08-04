@@ -9,3 +9,6 @@ rand = "0.7"
 clap = "2.33.0"
 log = "0.4.8"
 env_logger = "0.6.2"
+
+[profile.release]
+opt-level = 3

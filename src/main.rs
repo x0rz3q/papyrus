@@ -10,6 +10,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
+use std::thread;
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -82,13 +83,13 @@ fn main() {
 	let host = matches.value_of("host").unwrap_or("127.0.0.1");
 	let output = matches
 		.value_of("output")
-		.unwrap_or("/var/lib/papyrus/uploads");
+		.unwrap_or("/var/lib/papyrus/uploads")
+		.to_string();
 
 	info!("Opening socket {}:{}", host, port);
 	info!("Storing pastes in {}", output);
 
 	let listener = TcpListener::bind(format!("{}:{}", host, port)).unwrap();
-
 	for stream in listener.incoming() {
 		info!("Connection established");
 
@@ -101,6 +102,10 @@ fn main() {
 		};
 
 		info!("Connected to {}", stream.peer_addr().unwrap());
-		handle_connection(stream, output.to_string());
+
+		let output = output.clone();
+		thread::spawn(move || {
+			handle_connection(stream, output);
+		});
 	}
 }
