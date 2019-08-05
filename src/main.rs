@@ -116,13 +116,10 @@ fn main() {
 		.value_of("output")
 		.unwrap_or("/var/lib/papyrus/uploads")
 		.to_string();
-	let domain = match matches.value_of("domain") {
-		Some(domain) => domain.to_string(),
-		None => {
-			error!("Argument domain is required");
-			exit(1);
-		}
-	};
+	let domain = matches
+		.value_of("domain")
+		.unwrap_or("http://localhost")
+		.to_string();
 	let threads = match matches.value_of("threads").unwrap_or("4").parse::<usize>() {
 		Ok(threads) => threads,
 		Err(_) => {
