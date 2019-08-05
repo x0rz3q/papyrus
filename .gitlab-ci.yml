@@ -45,4 +45,5 @@ deploy_prod:
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
         - cargo build --release
         - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
+        - scp scripts/papyrus deploy@$DEPLOY_HOST:/etc/init.d/papyrus
     when: manual
