@@ -43,6 +43,5 @@ deploy_prod:
         - mkdir -p ~/.ssh
         - chmod 700 ~/.ssh
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
-        - cargo build --release
         - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
     when: manual
