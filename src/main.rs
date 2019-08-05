@@ -59,6 +59,12 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 			error!("Cannot write to stream: {}", e);
 		}
 	};
+	match stream.flush() {
+		Ok(_) => (),
+		Err(e) => {
+			error!("Cannot flush stream: {}", e);
+		}
+	}
 }
 
 fn main() {
