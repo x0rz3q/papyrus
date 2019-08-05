@@ -70,6 +70,7 @@ fn main() {
 		.about("Terminal pastebin")
 		.arg(
 			Arg::with_name("port")
+				.env("PAPYRUS_PORT")
 				.short("p")
 				.long("port")
 				.help("TCP port number")
@@ -77,6 +78,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("host")
+				.env("PAPYRUS_HOST")
 				.short("h")
 				.long("host")
 				.help("Host bind address")
@@ -84,6 +86,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("output")
+				.env("PAPYRUS_OUTPUT")
 				.short("o")
 				.long("output")
 				.help("Output directory")
@@ -91,6 +94,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("threads")
+				.env("PAPYRUS_THREADS")
 				.short("-t")
 				.long("threads")
 				.help("Thread count")
@@ -98,6 +102,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("domain")
+				.env("PAPYRUS_DOMAIN")
 				.short("-d")
 				.long("domain")
 				.help("Domain name to be used")
