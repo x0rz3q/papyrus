@@ -8,7 +8,7 @@ use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::io::prelude::*;
-use std::net::{TcpListener, TcpStream};
+use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::Path;
 use std::process::exit;
 use threadpool::ThreadPool;
@@ -18,20 +18,6 @@ fn random_slug() -> std::string::String {
 }
 
 fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
-	let mut buffer = [0; 51200];
-
-	let size = match stream.read(&mut buffer) {
-		Ok(size) => size,
-		Err(e) => {
-			error!(
-				"Cannot read data from stream with peer {}: {}",
-				stream.peer_addr().unwrap(),
-				e
-			);
-			return;
-		}
-	};
-
 	let slug = random_slug();
 	let path = Path::new(&directory).join(slug.clone());
 
@@ -46,23 +32,50 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 		}
 	};
 
-	match file.write_all(&buffer[..size]) {
-		Ok(_) => (),
-		Err(e) => {
-			error!("Cannot write to file {}: {}", path.display(), e);
-			return;
+	const MAX_SIZE: usize = 51200;
+	let mut buffer = [0; 512];
+	let mut total = 0;
+	stream.set_nonblocking(true).unwrap();
+
+	loop {
+		if total > MAX_SIZE {
+			break;
 		}
-	};
+
+		let len = match stream.peek(&mut buffer) {
+			Ok(len) => len,
+			Err(_) => break,
+		};
+
+		if len == 0 {
+			break;
+		}
+
+		let size = stream.read(&mut buffer).unwrap();
+		match file.write_all(&buffer[..size]) {
+			Ok(_) => (),
+			Err(e) => {
+				error!("Error writing file: {}", e);
+				break;
+			}
+		};
+
+		total += size;
+		debug!("size: {}", size);
+	}
+
 	match stream.write(format!("{}/{}\n", domain, slug).as_bytes()) {
 		Ok(_) => (),
 		Err(e) => {
 			error!("Cannot write to stream: {}", e);
+			return;
 		}
 	};
-	match stream.flush() {
+
+	match stream.shutdown(Shutdown::Both) {
 		Ok(_) => (),
 		Err(e) => {
-			error!("Cannot flush stream: {}", e);
+			error!("Cannot shutdown stream: {}", e);
 		}
 	}
 }
@@ -151,9 +164,9 @@ fn main() {
 		};
 
 		debug!("Connected to {}", stream.peer_addr().unwrap());
-
 		let output = output.clone();
 		let domain = domain.clone();
+
 		pool.execute(move || {
 			handle_connection(stream, output, domain);
 		});
