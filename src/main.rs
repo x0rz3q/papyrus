@@ -12,6 +12,8 @@ use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::Path;
 use std::process::exit;
 use threadpool::ThreadPool;
+use users::switch::{set_current_gid, set_current_uid};
+use users::{get_current_uid, get_group_by_name, get_user_by_name};
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -80,6 +82,50 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 	}
 }
 
+fn is_root() -> bool {
+	return get_current_uid() == 0;
+}
+
+fn switch_user(user: String) {
+	if ! is_root() {
+		warn!("Cannot switch to user {}: run as root to support user switching", user);
+		return;
+	}
+
+	let user_id = match get_user_by_name(&user) {
+		Some(user) => user.uid(),
+		None => {
+			warn!("User {} unknown", user);
+			return;
+		}
+	};
+
+	match set_current_uid(user_id) {
+		Ok(_) => (),
+		Err(e) => warn!("Cannot switch to user {}: {}", user, e),
+	};
+}
+
+fn switch_group(group: String) {
+	if ! is_root() {
+		warn!("Cannot switch to group {}: run as root to support group switching", group);
+		return;
+	}
+
+	let group_id = match get_group_by_name(&group) {
+		Some(group) => group.gid(),
+		None => {
+			warn!("Group {} unknown", group);
+			return;
+		}
+	};
+
+	match set_current_gid(group_id) {
+		Ok(_) => (),
+		Err(e) => warn!("Cannot switch to group {}: {}", group, e),
+	};
+}
+
 fn main() {
 	env_logger::init();
 
@@ -127,6 +173,22 @@ fn main() {
 				.help("Domain name to be used")
 				.takes_value(true),
 		)
+		.arg(
+			Arg::with_name("user")
+				.env("PAPYRUS_USER")
+				.short("-u")
+				.long("user")
+				.help("Papyrus user")
+				.takes_value(true),
+		)
+		.arg(
+			Arg::with_name("group")
+				.env("PAPYRUS_GROUP")
+				.short("-g")
+				.long("group")
+				.help("Papyrus group")
+				.takes_value(true),
+		)
 		.get_matches();
 
 	let port = matches.value_of("port").unwrap_or("9999");
@@ -146,6 +208,22 @@ fn main() {
 			exit(1);
 		}
 	};
+
+	match matches.value_of("group") {
+		Some(group) => {
+			debug!("Switching to group {}", group);
+			switch_group(group.to_string());
+		}
+		None => (),
+	};
+
+	match matches.value_of("user") {
+		Some(user) => {
+			debug!("Switching to user {}", user);
+			switch_user(user.to_string());
+		}
+		None => (),
+	}
 
 	info!("Opening socket {}:{}", host, port);
 	info!("Storing pastes in {}", output);
