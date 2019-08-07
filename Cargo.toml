@@ -11,6 +11,7 @@ log = "0.4.8"
 env_logger = "0.6.2"
 threadpool = "1.7.1"
 users = "0.9"
+nix = "0.14.1"
 
 [profile.release]
 opt-level = 3

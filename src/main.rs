@@ -14,6 +14,7 @@ use std::process::exit;
 use threadpool::ThreadPool;
 use users::switch::{set_current_gid, set_current_uid};
 use users::{get_current_uid, get_group_by_name, get_user_by_name};
+use nix::unistd::{fork, ForkResult};
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -106,6 +107,20 @@ fn switch_user(user: String) {
 	};
 }
 
+fn fork_process() {
+	debug!("Forking process");
+	match fork() {
+		Ok(ForkResult::Parent { child, .. }) => {
+			debug!("Child pid is {}", child);
+			exit(1);
+		}
+		Ok(ForkResult::Child) => {
+			return;
+		},
+		Err(_) => println!("Fork failed"),
+	}
+}
+
 fn switch_group(group: String) {
 	if ! is_root() {
 		warn!("Cannot switch to group {}: run as root to support group switching", group);
@@ -189,6 +204,11 @@ fn main() {
 				.help("Papyrus group")
 				.takes_value(true),
 		)
+		.arg(
+			Arg::with_name("daemonize")
+			.long("daemonize")
+			.help("Daemonize papyrus")
+		)
 		.get_matches();
 
 	let port = matches.value_of("port").unwrap_or("9999");
@@ -223,6 +243,11 @@ fn main() {
 			switch_user(user.to_string());
 		}
 		None => (),
+	}
+
+	match matches.occurrences_of("daemonize") {
+		0 => (),
+		_ => fork_process()
 	}
 
 	info!("Opening socket {}:{}", host, port);
