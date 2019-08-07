@@ -27,6 +27,7 @@ release:cargo:
     stage: release
     script:
         - cargo build --release
+        - strip target/release/papyrus
     artifacts:
         paths:
             - target/release/papyrus
