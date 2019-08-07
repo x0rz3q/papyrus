@@ -4,6 +4,7 @@ extern crate log;
 extern crate env_logger;
 
 use clap::{App, Arg};
+use nix::unistd::{fork, ForkResult};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs::File;
@@ -14,7 +15,6 @@ use std::process::exit;
 use threadpool::ThreadPool;
 use users::switch::{set_current_gid, set_current_uid};
 use users::{get_current_uid, get_group_by_name, get_user_by_name};
-use nix::unistd::{fork, ForkResult};
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -88,8 +88,11 @@ fn is_root() -> bool {
 }
 
 fn switch_user(user: String) {
-	if ! is_root() {
-		warn!("Cannot switch to user {}: run as root to support user switching", user);
+	if !is_root() {
+		warn!(
+			"Cannot switch to user {}: run as root to support user switching",
+			user
+		);
 		return;
 	}
 
@@ -116,14 +119,17 @@ fn fork_process() {
 		}
 		Ok(ForkResult::Child) => {
 			return;
-		},
+		}
 		Err(_) => println!("Fork failed"),
 	}
 }
 
 fn switch_group(group: String) {
-	if ! is_root() {
-		warn!("Cannot switch to group {}: run as root to support group switching", group);
+	if !is_root() {
+		warn!(
+			"Cannot switch to group {}: run as root to support group switching",
+			group
+		);
 		return;
 	}
 
@@ -206,8 +212,8 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("daemonize")
-			.long("daemonize")
-			.help("Daemonize papyrus")
+				.long("daemonize")
+				.help("Daemonize papyrus"),
 		)
 		.get_matches();
 
@@ -247,7 +253,7 @@ fn main() {
 
 	match matches.occurrences_of("daemonize") {
 		0 => (),
-		_ => fork_process()
+		_ => fork_process(),
 	}
 
 	info!("Opening socket {}:{}", host, port);
