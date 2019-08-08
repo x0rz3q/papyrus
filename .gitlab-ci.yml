@@ -34,6 +34,12 @@ release:cargo:
     only:
         - master
 
+release:docker
+    stage: release
+    image: docker:latest
+    script:
+        - docker build -t papyrus:latest .
+
 deploy_prod:
     stage: deploy
     environment:
