@@ -31,8 +31,8 @@ release:cargo:
     artifacts:
         paths:
             - target/release/papyrus
-    only:
-        - master
+#    only:
+#        - master
 
 release:docker:
     stage: release
