@@ -45,7 +45,7 @@ docker:publish:
         - "docker:dind"
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-        - docker build -t papyrus:latest .
+        - docker build -t x0rz3q/papyrus:latest .
         - docker push x0rz3q/papyrus:latest
 
 deploy_prod:
