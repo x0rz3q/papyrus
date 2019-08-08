@@ -36,7 +36,7 @@ release:cargo:
 
 release:docker:
     stage: release
-    image: "docker:latest"
+    image: "docker:dind"
     script:
         - docker build -t papyrus:latest .
 
