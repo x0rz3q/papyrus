@@ -4,6 +4,7 @@ stages:
     - test
     - build
     - release
+    - docker
     - deploy
 
 test:cargo:check:
@@ -34,7 +35,7 @@ release:cargo:
 #    only:
 #        - master
 
-release:docker:
+docker:publish:
     stage: release
     image: "docker:stable"
     variables:
