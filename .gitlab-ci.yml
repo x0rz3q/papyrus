@@ -36,10 +36,11 @@ release:cargo:
 
 release:docker:
     stage: release
-    image: "docker:latest"
+    image: "docker:stable"
     variables:
         DOCKER_DRIVER: overlay2
         DOCKER_TLS_CERTDIR: "/certs"
+        DOCKER_HOST: tcp://docker:2376
     services:
         - "docker:dind"
     script:
