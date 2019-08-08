@@ -34,7 +34,7 @@ release:cargo:
     only:
         - master
 
-release:docker
+release:docker:
     stage: release
     image: "docker:latest"
     script:
