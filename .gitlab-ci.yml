@@ -46,7 +46,7 @@ docker:publish:
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
         - docker build -t papyrus:latest .
-        - docker push papyrus:latest
+        - docker push x0rz3q/papyrus:latest
 
 deploy_prod:
     stage: deploy
