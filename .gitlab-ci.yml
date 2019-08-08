@@ -36,7 +36,7 @@ release:cargo:
 #        - master
 
 docker:publish:
-    stage: release
+    stage: docker
     image: "docker:stable"
     variables:
         DOCKER_DRIVER: overlay2
