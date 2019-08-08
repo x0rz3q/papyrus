@@ -36,7 +36,11 @@ release:cargo:
 
 release:docker:
     stage: release
-    image: "docker:dind"
+    image: "docker:latest"
+    variables:
+        DOCKER_DRIVER: overlay2
+    services:
+        - "docker:dind"
     script:
         - docker build -t papyrus:latest .
 
