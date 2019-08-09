@@ -51,7 +51,7 @@ docker:publish:
     only:
         - master
 
-docker:publish:
+docker:tag:
     stage: docker
     image: "docker:stable"
     variables:
