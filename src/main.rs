@@ -15,6 +15,7 @@ use std::process::exit;
 use threadpool::ThreadPool;
 use users::switch::{set_current_gid, set_current_uid};
 use users::{get_current_uid, get_group_by_name, get_user_by_name};
+use std::time::Duration;
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
@@ -38,7 +39,13 @@ fn handle_connection(mut stream: TcpStream, directory: String, domain: String) {
 	const MAX_SIZE: usize = 51200;
 	let mut buffer = [0; 512];
 	let mut total = 0;
-	stream.set_nonblocking(true).unwrap();
+	match stream.set_read_timeout(Some(Duration::from_secs(1))) {
+		Ok(_) => (),
+		Err(e) => {
+			error!("Cannot set read timeout {}", e);
+			return;
+		}
+	};
 
 	loop {
 		if total > MAX_SIZE {
