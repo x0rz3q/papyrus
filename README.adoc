@@ -28,6 +28,7 @@ sudo /usr/local/bin/papyrus -u papyrus -g papyrus --daemonize -d {your domain he
 If you want to expose the program to the outside you can run the last
 command from the above block with `-h 0.0.0.0`.
 
+== Usage
 [source,sh]
 ----
 papyrus 0.1.1
