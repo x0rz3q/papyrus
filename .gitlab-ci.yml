@@ -62,7 +62,7 @@ deploy_prod:
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
         - ssh deploy@$DEPLOY_HOST mkdir papyrus
         - scp docker-compose.yml deploy@$DEPLOY_HOST:~/papyrus
-        - ssh deploy@$DEPLOY_HOST 'cd papyrus; docker-compose pull && docker-compuse up -d'
+        - ssh deploy@$DEPLOY_HOST 'cd papyrus; docker-compose pull && docker-compose up -d'
         - ssh deploy@$DEPLOY_HOST 'rm -rf /home/deploy/papyrus'
     only:
         - master
