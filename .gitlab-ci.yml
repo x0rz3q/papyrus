@@ -60,7 +60,10 @@ deploy_prod:
         - mkdir -p ~/.ssh
         - chmod 700 ~/.ssh
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
-        - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
+        - ssh deploy@$DEPLOY_HOST mkdir papyrus
+        - scp docker-compose.yml deploy@$DEPLOY_HOST:~/papyrus
+        - ssh deploy@$DEPLOY_HOST cd papyrus; docker-compose pull && docker-compuse up -d
+        - ssh deploy@$DEPLOY_HOST rm -rf ~/papyrus
     only:
         - master
     when: manual
