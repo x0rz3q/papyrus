@@ -32,8 +32,8 @@ release:cargo:
     artifacts:
         paths:
             - target/release/papyrus
-#    only:
-#        - master
+    only:
+        - master
 
 docker:publish:
     stage: docker
@@ -59,4 +59,6 @@ deploy_prod:
         - chmod 700 ~/.ssh
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
         - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
+    only:
+        - master
     when: manual
