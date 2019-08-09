@@ -34,6 +34,7 @@ release:cargo:
             - target/release/papyrus
     only:
         - master
+        - tags
 
 docker:publish:
     stage: docker
@@ -49,6 +50,21 @@ docker:publish:
         - docker push x0rz3q/papyrus:latest
     only:
         - master
+
+docker:publish:
+    stage: docker
+    image: "docker:stable"
+    variables:
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: "/certs"
+    services:
+        - "docker:dind"
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+        - docker build -t x0rz3q/papyrus:$CI_COMMIT_TAG .
+        - docker push x0rz3q/papyrus:$CI_COMMIT_TAG
+    only:
+        - tags
 
 deploy_prod:
     stage: deploy
