@@ -1,0 +1,53 @@
+= = papyrus
+
+A terminal pastebin client, inspired by https://github.com/solusipse/fiche[fiche].
+
+== Client side usage
+[source,sh]
+----
+echo "Hello World!" | nc {host} 9999
+----
+
+== Installation
+=== From source on GNU/Linux
+You will need to have rust installed with cargo, please see the rust guides
+for your operating system.
+
+[source,sh]
+----
+cd "$(mktemp -d)" # create a temporary directory
+git clone https://github.com/x0rz3q/papyrus.git # clone the source
+cd papyrus # change directory into the source
+cargo build --release # build the release target
+strip target/release/papyrus # strip the symbols to make the binary smaller
+sudo mv target/release/papyrus /usr/local/bin # move the binary
+useradd --home-dir /var/lib/papyrus --create-home papyrus --system # add a user
+sudo /usr/local/bin/papyrus -u papyrus -g papyrus --daemonize -d {your domain here} # run the program
+----
+
+If you want to expose the program to the outside you can run the last
+command from the above block with `-h 0.0.0.0`.
+
+[source,sh]
+----
+papyrus 0.1.0
+x0rz3q <jacob@x0rz3q.com>
+Terminal pastebin
+
+USAGE:
+    papyrus [FLAGS] [OPTIONS]
+
+FLAGS:
+        --daemonize    Daemonize papyrus
+        --help         Prints help information
+    -V, --version      Prints version information
+
+OPTIONS:
+    -d, --domain <domain>      Domain name to be used [env: PAPYRUS_DOMAIN=]
+    -g, --group <group>        Papyrus group [env: PAPYRUS_GROUP=]
+    -h, --host <host>          Host bind address [env: PAPYRUS_HOST=]
+    -o, --output <output>      Output directory [env: PAPYRUS_OUTPUT=]
+    -p, --port <port>          TCP port number [env: PAPYRUS_PORT=]
+    -t, --threads <threads>    Thread count [env: PAPYRUS_THREADS=]
+    -u, --user <user>          Papyrus user [env: PAPYRUS_USER=]
+----
