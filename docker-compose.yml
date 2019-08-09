@@ -1,0 +1,12 @@
+version: '2'
+services:
+  papyrus:
+    image: x0rz3q/papyrus:latest
+    container_name: papyrus
+    restart: always
+    ports:
+      - "9999:9999"
+    environment:
+      - PAPYRUS_DOMAIN=https://p.x0rz3q.com
+    volumes:
+      - /data/papyrus/:/var/lib/papyrus/uploads:rw
