@@ -12,10 +12,10 @@ use std::io::prelude::*;
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::Path;
 use std::process::exit;
+use std::time::Duration;
 use threadpool::ThreadPool;
 use users::switch::{set_current_gid, set_current_uid};
 use users::{get_current_uid, get_group_by_name, get_user_by_name};
-use std::time::Duration;
 
 fn random_slug() -> std::string::String {
 	return thread_rng().sample_iter(&Alphanumeric).take(4).collect();
