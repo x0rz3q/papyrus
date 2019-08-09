@@ -1,4 +1,4 @@
-= papyrus
+= Papyrus
 
 A terminal pastebin client, inspired by https://github.com/solusipse/fiche[fiche].
 
