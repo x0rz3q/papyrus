@@ -30,7 +30,7 @@ command from the above block with `-h 0.0.0.0`.
 
 [source,sh]
 ----
-papyrus 0.1.0
+papyrus 0.1.1
 x0rz3q <jacob@x0rz3q.com>
 Terminal pastebin
 
