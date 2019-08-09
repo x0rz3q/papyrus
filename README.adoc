@@ -21,7 +21,7 @@ cd papyrus # change directory into the source
 cargo build --release # build the release target
 strip target/release/papyrus # strip the symbols to make the binary smaller
 sudo mv target/release/papyrus /usr/local/bin # move the binary
-useradd --home-dir /var/lib/papyrus --create-home papyrus --system # add a user
+sudo useradd --home-dir /var/lib/papyrus --create-home papyrus --system # add a user
 sudo /usr/local/bin/papyrus -u papyrus -g papyrus --daemonize -d {your domain here} # run the program
 ----
 
