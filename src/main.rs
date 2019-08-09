@@ -158,7 +158,7 @@ fn main() {
 	env_logger::init();
 
 	let matches = App::new("papyrus")
-		.version("0.1.0")
+		.version("0.1.1")
 		.author("x0rz3q <jacob@x0rz3q.com>")
 		.about("Terminal pastebin")
 		.arg(
