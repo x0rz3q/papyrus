@@ -4,6 +4,7 @@ stages:
     - test
     - build
     - release
+    - docker
     - deploy
 
 test:cargo:check:
@@ -34,6 +35,21 @@ release:cargo:
     only:
         - master
 
+docker:publish:
+    stage: docker
+    image: "docker:stable"
+    variables:
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: "/certs"
+    services:
+        - "docker:dind"
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+        - docker build -t x0rz3q/papyrus:latest .
+        - docker push x0rz3q/papyrus:latest
+    only:
+        - master
+
 deploy_prod:
     stage: deploy
     environment:
@@ -45,4 +61,6 @@ deploy_prod:
         - chmod 700 ~/.ssh
         - ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
         - scp target/release/papyrus deploy@$DEPLOY_HOST:/usr/local/bin/papyrus
+    only:
+        - master
     when: manual
